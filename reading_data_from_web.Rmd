@@ -1,0 +1,33 @@
+---
+title: "reading_data_from_web"
+author: "Kaila Boyer"
+date: "10/23/2021"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+library(httr) 
+knitr::opts_chunk$set(
+ 
+  fig.width = 6, 
+  fig.asp = 6, 
+  out.width = "90%"
+)
+
+theme_set(them_minimal() + theme(legend.position = "bottom"))
+
+options(
+  ggplot2.continuous.color = "viridis", 
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_color_discrete = scale_color_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r}
+
+```
+
