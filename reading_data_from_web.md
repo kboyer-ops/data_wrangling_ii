@@ -1,35 +1,11 @@
----
-title: "reading_data_from_web"
-author: "Kaila Boyer"
-date: "10/23/2021"
-output: github_document
----
+reading\_data\_from\_web
+================
+Kaila Boyer
+10/23/2021
 
-```{r setup, include=FALSE}
-library(tidyverse)
-library(rvest)
-library(httr) 
-knitr::opts_chunk$set(
- 
-  fig.width = 6, 
-  fig.asp = 6, 
-  out.width = "90%"
-)
+## NSDUH data
 
-theme_set(theme_minimal() + theme(legend.position = "bottom"))
-
-options(
-  ggplot2.continuous.color = "viridis", 
-  ggplot2.continuous.fill = "viridis"
-)
-
-scale_color_discrete = scale_color_viridis_d
-scale_fill_discrete = scale_fill_viridis_d
-```
-
-
-## NSDUH data 
-```{r}
+``` r
 url <- "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
 
 drug_use_html <- read_html(url)
@@ -40,19 +16,19 @@ drug_use_df <- drug_use_html %>%
                  slice(-1)
 ```
 
-## Learning Assessment 1 
+## Learning Assessment 1
 
-```{r}
+``` r
 nyc <- read_html("https://www.bestplaces.net/cost_of_living/city/new_york/new_york") %>% 
   html_table(header = TRUE) %>% 
   first()
 ```
 
+## CSS Selectors
 
-## CSS Selectors 
+Get star wars data
 
-Get star wars data 
-```{r}
+``` r
 sw_url <- "https://www.imdb.com/list/ls070150896/"
 
 sw_html <- 
@@ -73,11 +49,9 @@ sw_df <-
           )
 ```
 
-
 ## Learning Assessment 2 - Napoleon Dynamite
 
-```{r, eval = FALSE}
-
+``` r
 dynamite_url <- "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber=1"
 
 
@@ -92,7 +66,4 @@ dynamite_stars <-
   dynamite_html %>% 
   html_elements("#cm_cr-review_list .review-rating") %>% 
   html_text()
-  
 ```
-
-
