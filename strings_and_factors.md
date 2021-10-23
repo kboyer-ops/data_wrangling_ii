@@ -199,3 +199,118 @@ marj_df %>%
 ```
 
 <img src="strings_and_factors_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+
+## Restaurant inspections
+
+``` r
+data("rest_inspec")
+
+rest_inspec %>% slice(1:100) %>% View()
+
+rest_inspec %>% 
+  janitor::tabyl(boro, grade) 
+```
+
+    ##           boro     A     B    C Not Yet Graded   P    Z   NA_
+    ##          BRONX 13688  2801  701            200 163  351 16833
+    ##       BROOKLYN 37449  6651 1684            702 416  977 51930
+    ##      MANHATTAN 61608 10532 2689            765 508 1237 80615
+    ##        Missing     4     0    0              0   0    0    13
+    ##         QUEENS 35952  6492 1593            604 331  913 45816
+    ##  STATEN ISLAND  5215   933  207             85  47  149  6730
+
+``` r
+rest_inspec %>% 
+  group_by(boro, grade) %>% 
+  summarise(count = n())
+```
+
+    ## `summarise()` has grouped output by 'boro'. You can override using the `.groups` argument.
+
+    ## # A tibble: 37 × 3
+    ## # Groups:   boro [6]
+    ##    boro     grade          count
+    ##    <chr>    <chr>          <int>
+    ##  1 BRONX    A              13688
+    ##  2 BRONX    B               2801
+    ##  3 BRONX    C                701
+    ##  4 BRONX    Not Yet Graded   200
+    ##  5 BRONX    P                163
+    ##  6 BRONX    Z                351
+    ##  7 BRONX    <NA>           16833
+    ##  8 BROOKLYN A              37449
+    ##  9 BROOKLYN B               6651
+    ## 10 BROOKLYN C               1684
+    ## # … with 27 more rows
+
+``` r
+rest_inspec %>% 
+  filter(str_detect(grade, "[ABC]"), 
+  !(boro == "Missing")) %>% 
+  mutate(boro = str_to_title(boro))
+```
+
+    ## # A tibble: 188,195 × 18
+    ##    action        boro   building  camis critical_flag cuisine_descrip… dba      
+    ##    <chr>         <chr>  <chr>     <int> <chr>         <chr>            <chr>    
+    ##  1 Violations w… Manha… 1271     5.00e7 Critical      American         THE HARO…
+    ##  2 Violations w… Manha… 37       4.12e7 Not Critical  Korean           SHILLA K…
+    ##  3 Violations w… Manha… 53       4.04e7 Not Critical  Korean           HAN BAT …
+    ##  4 Violations w… Manha… 287      4.16e7 Not Critical  American         BRGR     
+    ##  5 Violations w… Manha… 800      4.11e7 Not Critical  Pizza            WALDY'S …
+    ##  6 Violations w… Manha… 121      5.00e7 Not Critical  CafÃ©/Coffee/Tea LUNA     
+    ##  7 Violations w… Manha… 124      4.10e7 Critical      American         JOHNY'S …
+    ##  8 Violations w… Manha… 138      4.11e7 Critical      American         AROME CA…
+    ##  9 Violations w… Manha… 839      5.00e7 Not Critical  American         L'AMICO/…
+    ## 10 Violations w… Manha… 35       4.13e7 Critical      Korean           MADANGSUI
+    ## # … with 188,185 more rows, and 11 more variables: inspection_date <dttm>,
+    ## #   inspection_type <chr>, phone <chr>, record_date <dttm>, score <int>,
+    ## #   street <chr>, violation_code <chr>, violation_description <chr>,
+    ## #   zipcode <int>, grade <chr>, grade_date <dttm>
+
+``` r
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]"), 
+  str_detect(grade, "[ABC]"))  %>% 
+  janitor::tabyl(boro, grade)
+```
+
+    ##           boro    A   B  C
+    ##          BRONX 1170 305 56
+    ##       BROOKLYN 1948 296 61
+    ##      MANHATTAN 1983 420 76
+    ##         QUEENS 1647 259 48
+    ##  STATEN ISLAND  323 127 21
+
+``` r
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]"), 
+  str_detect(grade, "[ABC]"))  %>% 
+  ggplot(aes(x = boro, fill = grade)) + 
+  geom_bar()
+```
+
+<img src="strings_and_factors_files/figure-gfm/unnamed-chunk-12-1.png" width="90%" />
+
+``` r
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]"), 
+  str_detect(grade, "[ABC]"))  %>% 
+  mutate(boro = fct_infreq(boro)) %>% 
+  ggplot(aes(x = boro, fill = grade)) + 
+  geom_bar()
+```
+
+<img src="strings_and_factors_files/figure-gfm/unnamed-chunk-12-2.png" width="90%" />
+
+Changing a label
+
+``` r
+rest_inspec %>% 
+  filter(str_detect(dba, "[Pp][Ii][Zz][Zz][Aa]"), 
+  str_detect(grade, "[ABC]"))  %>%
+  mutate(boro = fct_infreq(boro), 
+         boro = fct_recode(boro, "The City" = "Manhattan")) %>% 
+  ggplot(aes(x = boro, fill = grade)) + 
+  geom_bar()
+```
