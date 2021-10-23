@@ -27,3 +27,132 @@ options(
 scale_color_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
 ```
+
+## String vectors
+
+```{r}
+string_vec <- c("my", "name", "is", "jeff")
+
+str_detect(string_vec, "jeff")
+str_detect(string_vec, "m")
+
+str_replace(string_vec, "jeff", "Jeff")
+str_replace(string_vec, "e", "Jeff")
+```
+
+```{r}
+string_vec1 <- c(
+  "I think we all rule for participating", 
+  "I think i have been caught", 
+  "i think this will be quite fun actually",
+  "it will be fun, i think"
+)
+
+str_detect(string_vec1, "^i think")
+str_detect(string_vec1, "i think$")
+```
+
+```{r}
+string_vec = c(
+  "Y'all remember Pres. HW Bush?",
+  "I saw a green bush",
+  "BBQ and Bushwalking at Molonglo Gorge",
+  "BUSH -- LIVE IN CONCERT!!"
+  )
+
+str_detect(string_vec,"[Bb]ush")
+str_detect(string_vec,"bush")
+str_detect(string_vec,"Bush")
+```
+
+The character . matches anything.
+```{r}
+string_vec = c(
+  '7th inning stretch',
+  '1st half soon to begin. Texas won the toss.',
+  'she is 5 feet 4 inches tall',
+  '3AM - cant sleep :('
+  )
+
+str_detect(string_vec, "^[0-9][a-zA-Z]")
+
+string_vec = c(
+  'Its 7:11 in the evening',
+  'want to go to 7-11?',
+  'my flight is AA711',
+  'NetBios: scanning ip 203.167.114.66'
+  )
+
+str_detect(string_vec, "7.11")
+```
+
+Some characters are “special”. These include [ and ], ( and ), and .. If you want to search for these, you have to indicate they’re special using \. Unfortunately, \ is also special, so things get weird.
+```{r}
+string_vec = c(
+  'The CI is [2, 5]',
+  ':-]',
+  ':-[',
+  'I found the answer on pages [6-7]'
+  )
+
+str_detect(string_vec, "\\[")
+```
+
+## Why factors are weird 
+
+```{r}
+factor_vec <- factor(c("male", "male", "female", "female"))
+
+as.numeric(factor_vec)
+
+factor_vec <- fct_relevel(factor_vec, "male")
+as.numeric(factor_vec)
+```
+
+## NSDUH 
+
+```{r}
+nsduh_rul <- "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+
+table_marj <- read_html(nsduh_rul) %>% 
+  html_table() %>% 
+  first() %>% 
+  slice(-1)
+```
+
+Clean up table 
+```{r}
+
+table_marj %>% 
+  select(-contains("P Value")) %>% 
+  pivot_longer(-State, 
+               names_to = "age_year", 
+               values_to = "percent") %>% 
+  separate(age_year, into = c("age", "year"), -11)
+
+marj_df <- table_marj %>% 
+  select(-contains("P Value")) %>% 
+  pivot_longer(-State, 
+               names_to = "age_year", 
+               values_to = "percent") %>% 
+  separate(age_year, into = c("age", "year"), "\\(") %>% 
+  mutate(year = str_replace(year, "\\)", ""),
+         percent = str_replace(percent, "[a-c]$", ""), 
+         percent = as.numeric(percent)) %>% 
+  filter(!(State %in% c("Total U.S.", "Northeast", "Midwest", "South", "West")))
+
+```
+
+```{r}
+marj_df %>% 
+  filter(age == "12-17") %>% 
+  mutate(
+    State = fct_reorder(State, percent)
+  ) %>% 
+  ggplot(aes(x = State, y = percent, color = year)) + 
+  geom_point() + 
+  theme(axis.text = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+
+
